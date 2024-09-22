@@ -1,9 +1,9 @@
-const UserModel = requrie("../models/user-model");
+const UserModel = require("../models/user-model");
 const bcrypt = require("bcrypt");
 const tokenService = require("./token-service");
-const uuid = requrie("uuid");
-const mailService = requrie("./mail-service");
-const userDto = require("../dtos/user-dto");
+const uuid = require("uuid");
+const mailService = require("./mail-service");
+const UserDto = require("../dtos/user-dto"); // Note the capitalization of 'UserDto'
 
 class UserService {
   async registration(email, password) {
@@ -18,9 +18,12 @@ class UserService {
       password: hashPassword,
       activationLink,
     });
-    await mailService.sendActivationMail(email, activationLink);
+    await mailService.sendActivationMail(
+      email,
+      `${process.env.API_URL}/api/activate/${activationLink}`
+    );
 
-    const userDto = new userDto(user); // id, email, isActivated
+    const userDto = new UserDto(user); // Use 'UserDto' class
     const tokens = tokenService.generateTokens({ ...userDto });
     await tokenService.saveToken(userDto.id, tokens.refreshToken);
 
