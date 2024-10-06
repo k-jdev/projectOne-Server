@@ -4,12 +4,15 @@ const tokenService = require("./token-service");
 const uuid = require("uuid");
 const mailService = require("./mail-service");
 const UserDto = require("../dtos/user-dto"); // Note the capitalization of 'UserDto'
+const ApiError = require("../exceptions/api-error");
 
 class UserService {
   async registration(email, password) {
     const candidate = await UserModel.findOne({ email });
     if (candidate) {
-      throw new Error(`Користувач з поштовою скринькою ${email} вже існує`);
+      throw ApiError.BadRequest(
+        `Користувач з поштовою скринькою ${email} вже існує`
+      );
     }
     const hashPassword = await bcrypt.hash(password, 3);
     const activationLink = uuid.v4();
@@ -31,6 +34,14 @@ class UserService {
       ...tokens,
       user: userDto,
     };
+  }
+  async activate(activationLink) {
+    const user = await UserModel.findOne({ activationLink });
+    if (!user) {
+      throw ApiError.BadRequest("Невірне посилання активації");
+    }
+    user.isActivated = true;
+    await user.save();
   }
 }
 
