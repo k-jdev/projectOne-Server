@@ -26,7 +26,7 @@ class UserService {
       `${process.env.API_URL}/api/activate/${activationLink}`
     );
 
-    const userDto = new UserDto(user); // Use 'UserDto' class
+    const userDto = new UserDto(user);
     const tokens = tokenService.generateTokens({ ...userDto });
     await tokenService.saveToken(userDto.id, tokens.refreshToken);
 
@@ -54,7 +54,7 @@ class UserService {
     if (!isPassEquals) {
       throw ApiError.BadRequest("Невірний пароль");
     }
-    const userDto = new UserDto(user); // Use 'UserDto' class
+    const userDto = new UserDto(user);
     const tokens = tokenService.generateTokens({ ...userDto });
     await tokenService.saveToken(userDto.id, tokens.refreshToken);
 

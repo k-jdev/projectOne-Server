@@ -1,8 +1,11 @@
+// library for sending emails
 const nodemailer = require("nodemailer");
 
 class MailService {
   constructor() {
+    // create transporter for sending emails
     this.transporter = nodemailer.createTransport({
+      // get data from environment variables
       host: process.env.SMTP_HOST,
       port: process.env.SMTP_PORT,
       secure: false,
