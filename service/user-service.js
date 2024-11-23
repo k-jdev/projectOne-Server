@@ -7,7 +7,7 @@ const UserDto = require("../dtos/user-dto");
 const ApiError = require("../exceptions/api-error");
 
 class UserService {
-  async registration(email, password) {
+  async registration(email, password, name) {
     const candidate = await UserModel.findOne({ email });
     if (candidate) {
       throw ApiError.BadRequest(
@@ -19,6 +19,7 @@ class UserService {
     const user = await UserModel.create({
       email,
       password: hashPassword,
+      name: name,
       activationLink,
     });
     await mailService.sendActivationMail(
