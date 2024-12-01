@@ -4,11 +4,24 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 require("dotenv").config();
 const mongoose = require("mongoose");
+const parser = require("body-parser");
 const router = require("./router/index");
 const errorMiddleware = require("./middlewares/error-middleware");
+const WebSocket = require("ws");
 
 const PORT = process.env.PORT || 5000;
 const app = express();
+const wss = new WebSocket.Server({ port: 3001 });
+
+const clients = new Set();
+
+wss.on("connection", (ws) => {
+  clients.add(ws);
+
+  ws.on("close", () => {
+    clients.delete(ws);
+  });
+});
 
 // import modules like cors
 app.use(express.json());
@@ -16,12 +29,27 @@ app.use(cookieParser());
 app.use(
   cors({
     credentials: true,
-    origin: process.env.CLIENT_URL,
+    origin: "http://localhost:5173",
   })
 );
+app.use(parser.json());
+
 app.use("/api", router);
 app.use(errorMiddleware);
 
+app.post("/chat", (req, res) => {
+  const { player, message } = req.body;
+
+  // Рассылка сообщения всем подключенным клиентам
+  const payload = JSON.stringify({ player, message });
+  clients.forEach((client) => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(payload);
+    }
+  });
+
+  res.status(200).send("Message broadcasted");
+});
 //start function on our project
 const start = async () => {
   try {
