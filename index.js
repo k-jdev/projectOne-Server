@@ -9,7 +9,7 @@ const router = require("./router/index");
 const errorMiddleware = require("./middlewares/error-middleware");
 const WebSocket = require("ws");
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5200;
 const app = express();
 const wss = new WebSocket.Server({ port: 3001 });
 
